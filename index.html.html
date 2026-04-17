@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Mô phỏng máng lăn </title>
+
+<style>
+body {
+    text-align: center;
+    font-family: Arial;
+    background: linear-gradient(#dbeafe, #ffffff);
+}
+
+/* KHUNG */
+#container {
+    width: 900px;
+    height: 450px;
+    margin: auto;
+    position: relative;
+}
+
+/* MÁNG XỊN */
+#track {
+    position: absolute;
+    width: 700px;
+    height: 16px;
+    background: linear-gradient(to right, #666, #222);
+    top: 260px;
+    left: 80px;
+    transform: rotate(15deg);
+    transform-origin: left;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+
+/* HỐ */
+.hole {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px dashed #333;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.hole.active {
+    background: #86efac;
+    transform: scale(1.15);
+}
+
+/* BÓNG */
+.ball {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff7a7a, #cc0000);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* quay */
+@keyframes spin {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+
+.spin {
+    animation: spin 0.4s linear infinite;
+}
+
+/* TEXT */
+#status {
+    font-size: 20px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🔥 Mô phỏng máng lăn by PQHa</h2>
+
+<p>Bóng (vd: 1,2,3,2):</p>
+<input id="balls">
+
+<p>Số hố:</p>
+<input id="holes">
+
+<br><br>
+<button onclick="run()">Chạy</button>
+
+<div id="status"></div>
+
+<div id="container">
+    <div id="track"></div>
+</div>
+
+<script>
+
+let queue = [];
+let holes = [];
+
+const SCALE = 18;
+const angle = 15 * Math.PI/180;
+
+function run() {
+    const container = document.getElementById("container");
+    container.innerHTML = '<div id="track"></div>';
+    document.getElementById("status").innerHTML = "";
+
+    let balls = document.getElementById("balls").value.split(',').map(Number);
+    let k = parseInt(document.getElementById("holes").value);
+
+    holes = [];
+
+    // tạo hố
+    for (let i = 0; i < k; i++) {
+        let size = i + 1;
+        let d = size * SCALE;
+
+        let x = 150 + i * 120;
+        let y = 260 + Math.tan(angle) * (x - 80);
+
+        let h = document.createElement("div");
+        h.className = "hole";
+        h.style.width = d + "px";
+        h.style.height = d + "px";
+        h.style.left = x + "px";
+        h.style.top = (y + 20) + "px";
+        h.innerText = size;
+
+        container.appendChild(h);
+
+        holes.push({ size, used: false, x, y, el: h });
+    }
+
+    queue = [];
+
+    balls.forEach((size, i) => {
+        let d = size * SCALE;
+
+        let b = document.createElement("div");
+        b.className = "ball";
+        b.style.width = d + "px";
+        b.style.height = d + "px";
+        b.innerText = size;
+
+        b.style.left = "20px";
+        b.style.top = (30 + i*60) + "px";
+
+        container.appendChild(b);
+        queue.push({ el: b, size });
+    });
+
+    next();
+}
+
+function next() {
+    if (queue.length === 0) return;
+
+    let { el, size } = queue.shift();
+    move(el, size, next);
+}
+
+function move(ball, size, callback) {
+    let t = 0;
+    let speed = 0.6;
+
+    ball.classList.add("spin");
+
+    function animate() {
+        t += speed;
+        speed += 0.03;
+
+        let x = 80 + t;
+        let y = 260 + Math.tan(angle) * t;
+
+        let r = ball.offsetWidth / 2;
+
+        // 🔥 OFFSET CHUẨN VUÔNG GÓC MÁNG
+        let offsetX = r * Math.sin(angle);
+        let offsetY = r * Math.cos(angle);
+
+        ball.style.left = (x - offsetX) + "px";
+        ball.style.top = (y - offsetY) + "px";
+
+        for (let h of holes) {
+            if (!h.used && size <= h.size && x >= h.x - 10) {
+                h.used = true;
+
+                ball.classList.remove("spin");
+
+                ball.style.top = (h.y + 50) + "px";
+                h.el.classList.add("active");
+
+                document.getElementById("status").innerHTML =
+                `✅ ${size} ≤ ${h.size} → LỌT`;
+
+                setTimeout(callback, 700);
+                return;
+            }
+        }
+
+        if (x < 900) {
+            requestAnimationFrame(animate);
+        } else {
+            ball.classList.remove("spin");
+
+            document.getElementById("status").innerHTML =
+            `❌ ${size} KHÔNG lọt`;
+
+            setTimeout(callback, 700);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+</script>
+
+</body>
+</html>
