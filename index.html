@@ -19,7 +19,7 @@ body {
     position: relative;
 }
 
-/* MÁNG XỊN */
+/* MÁNG */
 #track {
     position: absolute;
     width: 700px;
@@ -80,6 +80,49 @@ body {
     margin-top: 10px;
     font-weight: bold;
 }
+
+/* 🎉 CELEBRATION */
+#celebration {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    text-align: center;
+    z-index: 999;
+    transition: 0.4s;
+}
+
+#celebration.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#winImg {
+    width: 300px;
+    border-radius: 20px;
+    box-shadow: 0 0 30px gold;
+}
+
+#winText {
+    font-size: 30px;
+    color: gold;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* confetti */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    animation: fall 1s linear forwards;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(300px) rotate(360deg);
+        opacity: 0;
+    }
+}
 </style>
 </head>
 
@@ -102,6 +145,12 @@ body {
     <div id="track"></div>
 </div>
 
+<!-- 🎉 HIỆU ỨNG -->
+<div id="celebration">
+    <img src="mimi(4).jpeg" id="winImg">
+    <div id="winText"></div>
+</div>
+
 <script>
 
 let queue = [];
@@ -120,7 +169,6 @@ function run() {
 
     holes = [];
 
-    // tạo hố
     for (let i = 0; i < k; i++) {
         let size = i + 1;
         let d = size * SCALE;
@@ -164,9 +212,28 @@ function run() {
 
 function next() {
     if (queue.length === 0) return;
-
     let { el, size } = queue.shift();
     move(el, size, next);
+}
+
+/* 🎉 HIỆU ỨNG ĂN MỪNG */
+function celebrate() {
+    const c = document.getElementById("celebration");
+    c.classList.add("show");
+
+    for (let i = 0; i < 25; i++) {
+        let d = document.createElement("div");
+        d.className = "confetti";
+        d.style.left = Math.random()*window.innerWidth + "px";
+        d.style.top = "0px";
+        d.style.background = ["red","yellow","blue","lime"][Math.floor(Math.random()*4)];
+        document.body.appendChild(d);
+        setTimeout(()=>d.remove(),1000);
+    }
+
+    setTimeout(()=>{
+        c.classList.remove("show");
+    },1000);
 }
 
 function move(ball, size, callback) {
@@ -184,7 +251,6 @@ function move(ball, size, callback) {
 
         let r = ball.offsetWidth / 2;
 
-        // 🔥 OFFSET CHUẨN VUÔNG GÓC MÁNG
         let offsetX = r * Math.sin(angle);
         let offsetY = r * Math.cos(angle);
 
@@ -202,6 +268,8 @@ function move(ball, size, callback) {
 
                 document.getElementById("status").innerHTML =
                 `✅ ${size} ≤ ${h.size} → LỌT`;
+
+                celebrate(); // 💥 GỌI HIỆU ỨNG
 
                 setTimeout(callback, 700);
                 return;
