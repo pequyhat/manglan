@@ -192,10 +192,23 @@ body {
     <div id="failText">😞😞 </div>
 </div>
 
+<!-- 🔊 SOUND (THÊM) -->
+<audio id="winSound" preload="auto">
+    <source src="win.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="failSound" preload="auto">
+    <source src="fail.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 
 let queue = [];
 let holes = [];
+
+/* 🔊 BIẾN ÂM THANH (THÊM) */
+const winSound = document.getElementById("winSound");
+const failSound = document.getElementById("failSound");
 
 const SCALE = 18;
 const angle = 15 * Math.PI/180;
@@ -262,6 +275,10 @@ function celebrate() {
     const c = document.getElementById("celebration");
     c.classList.add("show");
 
+    // 🔊 PLAY SOUND
+    winSound.currentTime = 0;
+    winSound.play().catch(()=>{});
+
     for (let i = 0; i < 25; i++) {
         let d = document.createElement("div");
         d.className = "confetti";
@@ -281,6 +298,10 @@ function celebrate() {
 function failEffect() {
     const f = document.getElementById("failBox");
     f.classList.add("show");
+
+    // 🔊 PLAY SOUND
+    failSound.currentTime = 0;
+    failSound.play().catch(()=>{});
 
     setTimeout(()=>{
         f.classList.remove("show");
