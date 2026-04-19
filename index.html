@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Mô phỏng máng lăn </title>
+<title>Mô phỏng máng lăn</title>
 
 <style>
 body {
@@ -69,7 +69,6 @@ body {
     from {transform: rotate(0deg);}
     to {transform: rotate(360deg);}
 }
-
 .spin {
     animation: spin 0.4s linear infinite;
 }
@@ -81,7 +80,7 @@ body {
     font-weight: bold;
 }
 
-/* 🎉 CELEBRATION */
+/* 🎉 WIN */
 #celebration {
     position: fixed;
     top: 50%;
@@ -106,7 +105,6 @@ body {
     font-size: 30px;
     color: gold;
     font-weight: bold;
-    margin-top: 10px;
 }
 
 /* confetti */
@@ -122,6 +120,43 @@ body {
         transform: translateY(300px) rotate(360deg);
         opacity: 0;
     }
+}
+
+/* 💀 FAIL */
+#failBox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    text-align: center;
+    z-index: 999;
+    transition: 0.4s;
+}
+
+#failBox.show {
+    transform: translate(-50%, -50%) scale(1);
+    animation: shake 0.3s;
+}
+
+#failImg {
+    width: 300px;
+    border-radius: 20px;
+    box-shadow: 0 0 30px red;
+}
+
+#failText {
+    font-size: 30px;
+    color: red;
+    font-weight: bold;
+}
+
+/* rung */
+@keyframes shake {
+    0% {transform: translate(-50%, -50%) translateX(0);}
+    25% {transform: translate(-50%, -50%) translateX(-10px);}
+    50% {transform: translate(-50%, -50%) translateX(10px);}
+    75% {transform: translate(-50%, -50%) translateX(-10px);}
+    100% {transform: translate(-50%, -50%) translateX(0);}
 }
 </style>
 </head>
@@ -145,10 +180,16 @@ body {
     <div id="track"></div>
 </div>
 
-<!-- 🎉 HIỆU ỨNG -->
+<!-- 🎉 WIN -->
 <div id="celebration">
     <img src="mimi(4).jpeg" id="winImg">
-    <div id="winText"></div>
+    <div id="winText">🎉🥳🥳🎉</div>
+</div>
+
+<!-- 💀 FAIL -->
+<div id="failBox">
+    <img src="mimi(5).jpeg" id="failImg">
+    <div id="failText">😞😞 </div>
 </div>
 
 <script>
@@ -216,7 +257,7 @@ function next() {
     move(el, size, next);
 }
 
-/* 🎉 HIỆU ỨNG ĂN MỪNG */
+/* 🎉 WIN */
 function celebrate() {
     const c = document.getElementById("celebration");
     c.classList.add("show");
@@ -233,6 +274,16 @@ function celebrate() {
 
     setTimeout(()=>{
         c.classList.remove("show");
+    },1000);
+}
+
+/* 💀 FAIL */
+function failEffect() {
+    const f = document.getElementById("failBox");
+    f.classList.add("show");
+
+    setTimeout(()=>{
+        f.classList.remove("show");
     },1000);
 }
 
@@ -269,7 +320,7 @@ function move(ball, size, callback) {
                 document.getElementById("status").innerHTML =
                 `✅ ${size} ≤ ${h.size} → LỌT`;
 
-                celebrate(); // 💥 GỌI HIỆU ỨNG
+                celebrate();
 
                 setTimeout(callback, 700);
                 return;
@@ -283,6 +334,8 @@ function move(ball, size, callback) {
 
             document.getElementById("status").innerHTML =
             `❌ ${size} KHÔNG lọt`;
+
+            failEffect();
 
             setTimeout(callback, 700);
         }
